@@ -271,6 +271,7 @@ class KiwoomRealtimeClient:
             raise KiwoomAuthError(f"Invalid LOGIN response format: {e}")
         except Exception as e:
             self.is_connected = False
+            self.websocket = None
             self.logger.error(f"Failed to connect to WebSocket: {e}")
             raise KiwoomAuthError(f"WebSocket connection failed: {e}")
     
@@ -311,6 +312,7 @@ class KiwoomRealtimeClient:
                     break
                 except ConnectionClosed:
                     self.logger.info("WebSocket connection closed by server")
+                    self.is_connected = False
                     break
                 except json.JSONDecodeError as e:
                     self.logger.error(f"Failed to parse message: {e}")
