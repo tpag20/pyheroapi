@@ -2411,18 +2411,49 @@ class KiwoomClient:
         journal_data = response.get("data", [])
         return [TradingJournal(**item) for item in journal_data]
 
-    def get_deposit_details(self) -> "DepositDetail":
+    def get_deposit_details(self, query_type: str = "2") -> "DepositDetail":
         """
         Get deposit detail status (kt00001).
+
+        Args:
+            query_type: Query type ("2": general inquiry, "3": estimated inquiry)
 
         Returns:
             DepositDetail data
         """
         from .models import DepositDetail
 
-        response = self._make_request("/api/dostk/acnt", "kt00001", {})
+        data = {"qry_tp": query_type}
+        response = self._make_request("/api/dostk/acnt", "kt00001", data)
         return DepositDetail(**response)
 
+    def get_account_balance(self, account_number: str) -> "AccountBalance":
+        """
+        Get account balance information.
+
+        Args:
+            account_number: Account number
+
+        Returns:
+            AccountBalance data
+        """
+        from .models import AccountBalance
+
+        deposit_details = self.get_deposit_details()
+
+        # Calculate total balance (deposit + collateral)
+        entr = float(deposit_details.entr) if deposit_details.entr else 0.0
+        repl_amt = float(deposit_details.repl_amt) if deposit_details.repl_amt else 0.0
+        total_balance = entr + repl_amt
+
+        return AccountBalance(
+            account_number=account_number,
+            total_balance=str(int(total_balance)),
+            available_balance=deposit_details.ord_alow_amt,
+            securities_balance=deposit_details.crd_set_grnta,
+            deposit=deposit_details.entr,
+            substitute=deposit_details.repl_amt
+        )
     def get_daily_estimated_deposit_assets(self, date: str) -> Dict[str, Any]:
         """
         Get daily estimated deposit asset status (kt00002).
@@ -3011,10 +3042,10 @@ class KiwoomClient:
     # Short Selling Methods (공매도)
 
     def get_short_selling_trend(
-        self, 
-        symbol: str, 
-        time_type: str = "1", 
-        start_date: str = "", 
+        self,
+        symbol: str,
+        time_type: str = "1",
+        start_date: str = "",
         end_date: str = ""
     ) -> List[Dict[str, Any]]:
         """
@@ -3178,8 +3209,8 @@ class KiwoomClient:
         return response.get("sec_lend_bal_top10", [])
 
     def get_securities_lending_details(
-        self, 
-        symbol: str, 
+        self,
+        symbol: str,
         date_type: str = "1",
         start_date: str = "",
         end_date: str = ""
@@ -3226,7 +3257,7 @@ class KiwoomClient:
     def get_sector_investor_net_buying(
         self,
         market_type: str = "0",
-        amount_quantity_type: str = "0", 
+        amount_quantity_type: str = "0",
         base_date: str = "",
         exchange_type: str = "3"
     ) -> List[Dict[str, Any]]:
@@ -3787,5 +3818,5 @@ class KiwoomClient:
             "stex_tp": stex_tp,
             **kwargs
         }
-        
+
         return self._make_request("ka90002", "/api/dostk/thme", data)

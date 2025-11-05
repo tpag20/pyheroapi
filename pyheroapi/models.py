@@ -356,14 +356,16 @@ class TradingJournal(BaseModel):
 
 
 class DepositDetail(BaseModel):
-    """Deposit detail model"""
+    """Deposit detail model (kt00001 response)"""
 
-    tot_evla_amt: Optional[str] = None
-    scts_evla_amt: Optional[str] = None
-    tot_dncl_amt: Optional[str] = None
-    nxdy_excc_amt: Optional[str] = None
-    nxdy_auto_rdpt_amt: Optional[str] = None
-    ord_psbl_cash: Optional[str] = None
+    entr: Optional[str] = Field(None, description="예수금")
+    ord_alow_amt: Optional[str] = Field(None, description="주문가능금액")
+    pymn_alow_amt: Optional[str] = Field(None, description="출금가능금액")
+    repl_amt: Optional[str] = Field(None, description="대용금평가금액")
+    bncr_buy_alowa: Optional[str] = Field(None, description="수익증권매수가능금액")
+    d1_entra: Optional[str] = Field(None, description="d+1추정예수금")
+    d2_entra: Optional[str] = Field(None, description="d+2추정예수금")
+    crd_set_grnta: Optional[str] = Field(None, description="신용설정평가금")
 
 
 class AssetEvaluation(BaseModel):
