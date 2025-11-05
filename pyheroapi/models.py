@@ -142,6 +142,7 @@ class AccountBalance(BaseModel):
     account_number: str = Field(..., description="계좌번호")
     total_balance: Optional[str] = Field(None, description="총잔고")
     available_balance: Optional[str] = Field(None, description="주문가능금액")
+    securities_balance: Optional[str] = Field(None, description="유가증권평가금액")
     deposit: Optional[str] = Field(None, description="예수금")
     substitute: Optional[str] = Field(None, description="대용금")
 
